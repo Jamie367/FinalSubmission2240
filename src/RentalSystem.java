@@ -14,9 +14,17 @@ public class RentalSystem {
     private RentalHistory rentalHistory = new RentalHistory();
      
     private RentalSystem() {}
-    public void addVehicle(Vehicle vehicle) {
+
+    public boolean  addVehicle(Vehicle vehicle) {
+        for (Vehicle i : vehicles) {
+            if(i.getLicensePlate().equals(vehicle.getLicensePlate())){
+                return false;
+            }
+        }
         vehicles.add(vehicle);
         saveVehicle(vehicle);
+        return true;
+        
     }
     public static RentalSystem getInstance(){
         if(instance == null){
