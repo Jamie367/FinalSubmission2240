@@ -3,6 +3,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 public class RentalSystem { 
@@ -23,10 +24,16 @@ public class RentalSystem {
         }
         return instance;
     }
-    public void addCustomer(Customer customer) {
+    public boolean  addCustomer(Customer customer) {
+        for (Customer i : customers) {
+          if(i.getCustomerId() == customer.getCustomerId()){
+            return false;
+          }
+        }
+        
         customers.add(customer);
-
         saveCustomer(customer);
+        return true;
     }
 
     public void rentVehicle(Vehicle vehicle, Customer customer, LocalDate date, double amount) {
@@ -96,7 +103,7 @@ public class RentalSystem {
     }
     public void saveVehicle(Vehicle vehicle){
         try{
-        FileWriter vehWriter = new FileWriter("vehicle.txt");
+        FileWriter vehWriter = new FileWriter("vehicles.txt");
         vehWriter.append(vehicle.getInfo());
         vehWriter.close();
         } catch(IOException e){
@@ -106,7 +113,7 @@ public class RentalSystem {
     }
     public void saveCustomer(Customer customer){
         try{
-            FileWriter cusWriter = new FileWriter("vehicles.txt");
+            FileWriter cusWriter = new FileWriter("customers.txt");
             cusWriter.append(customer.toString());
             cusWriter.close();
             } catch(IOException e){
@@ -121,5 +128,19 @@ public class RentalSystem {
             } catch(IOException e){
                 System.out.println("error writing to record file");
             } 
+    }
+    
+    private void loadData(){
+        try {
+            Scanner vehRead = new Scanner("vehicles.txt");
+        Scanner cusRead = new Scanner("customers.txt");
+        Scanner rentRead = new Scanner("rental_records.txt");
+        int iterator = 0;
+            while(cusRead.hasNext()){
+                
+            }
+        } catch (Exception e) {
+        }
+        
     }
 }
