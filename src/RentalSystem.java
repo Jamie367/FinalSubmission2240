@@ -13,7 +13,7 @@ public class RentalSystem {
     private List<Customer> customers = new ArrayList<>();
     private RentalHistory rentalHistory = new RentalHistory();
      
-    private RentalSystem() {}
+    private RentalSystem() { loadData(); }
 
     public boolean  addVehicle(Vehicle vehicle) {
         for (Vehicle i : vehicles) {
@@ -24,7 +24,7 @@ public class RentalSystem {
         vehicles.add(vehicle);
         saveVehicle(vehicle);
         return true;
-        
+
     }
     public static RentalSystem getInstance(){
         if(instance == null){
@@ -76,7 +76,9 @@ public class RentalSystem {
     	 
         for (Vehicle v : vehicles) {
             if (!onlyAvailable || v.getStatus() == Vehicle.VehicleStatus.AVAILABLE) {
+                
                 System.out.println("|     " + (v instanceof Car ? "Car          " : "Motorcycle   ") + "|\t" + v.getLicensePlate() + "\t|\t" + v.getMake() + "\t|\t" + v.getModel() + "\t|\t" + v.getYear() + "\t|\t");
+                
             }
         }
         System.out.println();
@@ -113,6 +115,7 @@ public class RentalSystem {
         try{
         FileWriter vehWriter = new FileWriter("vehicles.txt");
         vehWriter.append(vehicle.getInfo());
+        vehWriter.append("\n");
         vehWriter.close();
         } catch(IOException e){
             System.out.println("error writing to vehicle file");
@@ -122,7 +125,8 @@ public class RentalSystem {
     public void saveCustomer(Customer customer){
         try{
             FileWriter cusWriter = new FileWriter("customers.txt");
-            cusWriter.append(customer.toString());
+            cusWriter.append(customer.printable());
+            cusWriter.append("\n");
             cusWriter.close();
             } catch(IOException e){
                 System.out.println("error writing to Customer file");
@@ -132,6 +136,7 @@ public class RentalSystem {
         try{
             FileWriter recWriter = new FileWriter("rental_records.txt");
             recWriter.append(record.toString());
+            recWriter.append("\n");
             recWriter.close();
             } catch(IOException e){
                 System.out.println("error writing to record file");
@@ -144,9 +149,64 @@ public class RentalSystem {
         Scanner cusRead = new Scanner("customers.txt");
         Scanner rentRead = new Scanner("rental_records.txt");
         int iterator = 0;
-            while(cusRead.hasNext()){
-                
+            while(cusRead.hasNextLine()){
+                String[] newAddition;
+                newAddition = cusRead.nextLine().split(",");
+                    customers.add(new Customer( Integer.valueOf(newAddition[0]), newAddition[1]));
             }
+            cusRead.close();
+            iterator = 0;
+            while(vehRead.hasNextLine()){
+                String line = vehRead.nextLine();
+                String[] parts = line.split(" //| ");
+                     // Extract common vehicle info
+                String licensePlate = parts[1].trim();
+                String make = parts[2].trim();
+                String model = parts[3].trim();
+                int year = Integer.parseInt(parts[4].trim());
+                
+                
+                // Check what specific info is there
+                if (line.contains("Cargo Capacity")) {
+                    // Truck
+                    int cargoCapacity = Integer.parseInt(parts[6].split(":")[1].trim());
+                    Vehicle newTruck = new Truck(make, model, year, cargoCapacity);
+                    newTruck.setLicensePlate(licensePlate);
+                    vehicles.add(newTruck);
+
+                } else if (line.contains("Seats:")) {
+                    // car
+                    int seats = Integer.parseInt(parts[6].split(":")[1].trim());
+                    Vehicle newCar = new Car(make, model, year, seats);
+                    newCar.setLicensePlate(licensePlate);
+                    vehicles.add(newCar);
+                } else if (line.contains("Sidecar")) {
+                    // Motorcycle
+                    boolean hasSidecar = parts[6].split(":")[1].trim().equalsIgnoreCase("Yes");
+                    Vehicle bike = new Motorcycle( make, model, year, hasSidecar);
+                    bike.setLicensePlate(licensePlate);
+                    vehicles.add(bike);
+
+                }
+            }
+            vehRead.close();
+           
+            while(rentRead.hasNextLine()){
+                String[] parts = rentRead.nextLine().split(" //| ");
+                
+                String plate = parts[1].replace("Plate: ", "");
+                String customerName = parts[2].replace("Customer: ", "");
+                String date = parts[3].replace("Date: ", "");
+                String amount = parts[4].replace("Amount: $", "");
+
+                Vehicle newVehicle = findVehicleByPlate(plate);
+                Customer newCustomer = findCustomerById(customerName);
+                LocalDate newDate = LocalDate.parse(date);
+                double newAmount = Double.parseDouble(amount);
+                rentalHistory.addRecord(new RentalRecord(newVehicle,newCustomer,newDate,newAmount,parts[0]));
+
+            }
+            rentRead.close();
         } catch (Exception e) {
         }
         

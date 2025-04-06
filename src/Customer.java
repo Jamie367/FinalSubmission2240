@@ -18,5 +18,9 @@ public class Customer {
     @Override
     public String toString() {
         return "Customer ID: " + customerId + " | Name: " + name;
+
+    }
+    public String printable(){
+        return customerId + "," + name;
     }
 }

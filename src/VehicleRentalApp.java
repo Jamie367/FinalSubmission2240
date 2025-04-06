@@ -37,7 +37,7 @@ public class VehicleRentalApp {
                         boolean sidecar = scanner.nextBoolean();
                         vehicle = new Motorcycle(make, model, year, sidecar);
 		            } else if (type == 3) {
-		                System.out.print("Enter the cargo capacity: ");
+		                System.out.print("Enter th5e cargo capacity: ");
 		                double cargoCapacity = scanner.nextDouble();
 		                vehicle = new Truck(make, model, year, cargoCapacity);
 		            } else {
@@ -140,7 +140,7 @@ public class VehicleRentalApp {
                     rentalSystem.displayRentalHistory();
                     break;
                     
-                case 0:
+                case 7:
                 	scanner.close();
                     System.exit(0);
             }
